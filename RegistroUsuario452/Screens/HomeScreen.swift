@@ -79,9 +79,10 @@ struct HomeScreen: View {
                     .shadow(color: Color.black.opacity(0.05), radius: 10, x: 0, y: -5)
             )
         }
+        .preferredColorScheme(.light)
         .edgesIgnoringSafeArea(.bottom)
         .sheet(isPresented: $showCreateReport) {
-            CreateReportView()
+            CreateReportView(isGuestMode: false)
         }
     }
 }
@@ -97,11 +98,11 @@ struct TabBarButton: View {
             VStack(spacing: 4) {
                 Image(systemName: icon)
                     .font(.system(size: 24))
-                    .foregroundColor(isSelected ? .red : .gray)
+                    .foregroundColor(isSelected ? .red : .black)
                 
                 Text(title)
-                    .font(.system(size: 11))
-                    .foregroundColor(isSelected ? .red : .gray)
+                    .font(.system(size: 11, weight: .medium))
+                    .foregroundColor(isSelected ? .red : .black)
             }
             .frame(maxWidth: .infinity)
         }

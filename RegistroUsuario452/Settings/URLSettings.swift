@@ -8,7 +8,7 @@
 import Foundation
 
 struct URLSettings {
-    static let server = "http://localhost:3000"
+    static let server = "http://192.168.0.100:3000"
     static let register = String(server + "/users")
     static let login = String(server + "/auth/login")
     static let profile = String(server + "/auth/profile")

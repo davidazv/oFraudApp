@@ -21,6 +21,7 @@ struct RequestSupportView: View {
     @State private var isLoading = false
     @State private var showCategoryPicker = false
     @State private var showPriorityPicker = false
+    @State private var showMySolicitudes = false
     
     let categories = ["Problema técnico", "Error de la app", "Problema de cuenta", "Sugerencia", "Otro"]
     let priorities = ["Muy urgente", "Urgente", "No urgente"]
@@ -201,6 +202,31 @@ struct RequestSupportView: View {
                         .cornerRadius(12)
                         .disabled(isLoading)
                         .padding(.horizontal)
+                        
+                        // Botón para ver mis solicitudes
+                        Button(action: {
+                            showMySolicitudes = true
+                        }) {
+                            HStack {
+                                Image(systemName: "list.bullet")
+                                    .foregroundColor(.blue)
+                                Text("Ver Mis Solicitudes")
+                                    .font(.system(size: 16, weight: .medium))
+                                    .foregroundColor(.blue)
+                                Spacer()
+                                Image(systemName: "chevron.right")
+                                    .font(.system(size: 12))
+                                    .foregroundColor(.gray)
+                            }
+                            .padding()
+                            .background(Color.white)
+                            .cornerRadius(12)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 12)
+                                    .stroke(Color.blue.opacity(0.3), lineWidth: 1)
+                            )
+                        }
+                        .padding(.horizontal)
                         .padding(.bottom, 20)
                     }
                 }
@@ -235,12 +261,15 @@ struct RequestSupportView: View {
             }
             .alert("Soporte Técnico", isPresented: $showingAlert) {
                 Button("OK") {
-                    if alertMessage.contains("Ticket") {
+                    if alertMessage.contains("exitosamente") {
                         dismiss()
                     }
                 }
             } message: {
                 Text(alertMessage)
+            }
+            .sheet(isPresented: $showMySolicitudes) {
+                MySupportRequestsView()
             }
         }
     }
@@ -264,14 +293,89 @@ struct RequestSupportView: View {
             return
         }
         
+        Task {
+            await sendSupportRequest()
+        }
+    }
+    
+    private func sendSupportRequest() async {
         isLoading = true
         
-        // Simular envío (implementar llamada al backend aquí)
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
-            isLoading = false
-            let ticketID = Int.random(in: 10000...99999)
-            alertMessage = "Solicitud enviada exitosamente.\n\nTu ID de ticket es: #\(ticketID)\n\nRecibirás una respuesta pronto."
-            showingAlert = true
+        do {
+            // Obtener token del usuario
+            guard let token = TokenStorage.get(identifier: "accessToken") else {
+                await MainActor.run {
+                    isLoading = false
+                    alertMessage = "No hay sesión activa. Por favor inicia sesión."
+                    showingAlert = true
+                }
+                return
+            }
+            
+            // Mapear prioridades
+            let priorityValue: String
+            switch priority {
+            case "Muy urgente":
+                priorityValue = "urgent"
+            case "Urgente":
+                priorityValue = "normal"
+            case "No urgente":
+                priorityValue = "low"
+            default:
+                priorityValue = "normal"
+            }
+            
+            // Crear solicitud JSON
+            let requestData: [String: Any] = [
+                "title": subject,
+                "description": detailedDescription,
+                "priority": priorityValue
+            ]
+            
+            let url = URL(string: "http://192.168.0.100:3000/help-requests")!
+            var httpRequest = URLRequest(url: url)
+            httpRequest.httpMethod = "POST"
+            httpRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
+            httpRequest.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+            httpRequest.httpBody = try JSONSerialization.data(withJSONObject: requestData)
+            
+            print("📤 Enviando solicitud de ayuda...")
+            print("🔍 Datos enviados: \(requestData)")
+            
+            let (data, response) = try await URLSession.shared.data(for: httpRequest)
+            
+            if let httpResponse = response as? HTTPURLResponse {
+                print("📊 Código de estado: \(httpResponse.statusCode)")
+                
+                if let jsonString = String(data: data, encoding: .utf8) {
+                    print("📥 Respuesta: \(jsonString)")
+                }
+                
+                await MainActor.run {
+                    isLoading = false
+                    
+                    if httpResponse.statusCode >= 200 && httpResponse.statusCode < 300 {
+                        alertMessage = "Solicitud enviada exitosamente.\n\nNuestro equipo revisará tu solicitud y te responderá pronto."
+                        showingAlert = true
+                    } else {
+                        // Intentar decodificar error
+                        if let errorResponse = try? JSONDecoder().decode(ErrorResponse.self, from: data) {
+                            alertMessage = "Error al enviar solicitud: \(errorResponse.errorMessage)"
+                        } else {
+                            alertMessage = "Error al enviar solicitud. Código: \(httpResponse.statusCode)"
+                        }
+                        showingAlert = true
+                    }
+                }
+            }
+            
+        } catch {
+            await MainActor.run {
+                isLoading = false
+                alertMessage = "Error de conexión: \(error.localizedDescription)"
+                showingAlert = true
+                print("❌ Error completo: \(error)")
+            }
         }
     }
 }

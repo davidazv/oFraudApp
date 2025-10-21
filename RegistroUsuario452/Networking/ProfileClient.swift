@@ -10,8 +10,8 @@ import Foundation
 class ProfileClient {
     
     func getUserProfile(token: String) async throws -> UserProfileResponse {
-        guard let url = URL(string: "http://localhost:3000/auth/profile") else {
-            fatalError("Invalid URL" + "http://localhost:3000/auth/profile")
+        guard let url = URL(string: "http://192.168.0.100:3000/auth/profile") else {
+            fatalError("Invalid URL" + "http://192.168.0.100:3000/auth/profile")
         }
         var urlRequest = URLRequest(url: url)
         urlRequest.addValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
@@ -21,7 +21,7 @@ class ProfileClient {
     }
     
     func updateUserProfile(token: String, name: String?, email: String?) async throws -> UserResponseDto {
-        guard let url = URL(string: "http://localhost:3000/users") else {
+        guard let url = URL(string: "http://192.168.0.100:3000/users") else {
             throw URLError(.badURL)
         }
         
@@ -70,7 +70,7 @@ class ProfileClient {
     }
     
     func updatePassword(token: String, currentPassword: String, newPassword: String) async throws {
-        guard let url = URL(string: "http://localhost:3000/users") else {
+        guard let url = URL(string: "http://192.168.0.100:3000/users") else {
             throw URLError(.badURL)
         }
         

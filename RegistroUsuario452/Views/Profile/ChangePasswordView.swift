@@ -9,7 +9,6 @@ import SwiftUI
 
 struct ChangePasswordView: View {
     @Environment(\.dismiss) private var dismiss
-    @State private var currentPassword = ""
     @State private var newPassword = ""
     @State private var confirmPassword = ""
     @State private var showingAlert = false
@@ -37,18 +36,6 @@ struct ChangePasswordView: View {
                     .padding(.top, 20)
                     
                     VStack(spacing: 16) {
-                        // Contraseña actual
-                        VStack(alignment: .leading, spacing: 8) {
-                            Text("Contraseña Actual")
-                                .font(.system(size: 16, weight: .medium))
-                                .foregroundColor(.black)
-                            
-                            SecureField("Ingresa tu contraseña actual", text: $currentPassword)
-                                .padding()
-                                .background(Color.gray.opacity(0.1))
-                                .cornerRadius(12)
-                        }
-                        
                         // Nueva contraseña
                         VStack(alignment: .leading, spacing: 8) {
                             Text("Nueva Contraseña")
@@ -56,6 +43,9 @@ struct ChangePasswordView: View {
                                 .foregroundColor(.black)
                             
                             SecureField("Ingresa tu nueva contraseña", text: $newPassword)
+                                .textContentType(.newPassword)
+                                .autocapitalization(.none)
+                                .disableAutocorrection(true)
                                 .padding()
                                 .background(Color.gray.opacity(0.1))
                                 .cornerRadius(12)
@@ -68,6 +58,9 @@ struct ChangePasswordView: View {
                                 .foregroundColor(.black)
                             
                             SecureField("Confirma tu nueva contraseña", text: $confirmPassword)
+                                .textContentType(.newPassword)
+                                .autocapitalization(.none)
+                                .disableAutocorrection(true)
                                 .padding()
                                 .background(Color.gray.opacity(0.1))
                                 .cornerRadius(12)
@@ -82,8 +75,8 @@ struct ChangePasswordView: View {
                             .foregroundColor(.black)
                         
                         PasswordRequirementRow(
-                            text: "Mínimo 8 caracteres",
-                            isMet: newPassword.count >= 8
+                            text: "Mínimo 10 caracteres",
+                            isMet: newPassword.count >= 10
                         )
                         
                         PasswordRequirementRow(
@@ -161,20 +154,14 @@ struct ChangePasswordView: View {
     }
     
     private func updatePassword() async {
-        guard !currentPassword.isEmpty else {
-            alertMessage = "Por favor ingresa tu contraseña actual"
-            showingAlert = true
-            return
-        }
-        
         guard !newPassword.isEmpty else {
             alertMessage = "Por favor ingresa una nueva contraseña"
             showingAlert = true
             return
         }
         
-        guard newPassword.count >= 8 else {
-            alertMessage = "La contraseña debe tener mínimo 8 caracteres"
+        guard newPassword.count >= 10 else {
+            alertMessage = "La contraseña debe tener mínimo 10 caracteres"
             showingAlert = true
             return
         }
@@ -207,7 +194,7 @@ struct ChangePasswordView: View {
         
         do {
             try await profileController.updatePassword(
-                currentPassword: currentPassword,
+                currentPassword: "", // Ya no usamos contraseña actual
                 newPassword: newPassword
             )
             

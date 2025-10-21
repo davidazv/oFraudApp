@@ -44,8 +44,6 @@ struct ProfileController {
             throw NSError(domain: "", code: 401, userInfo: [NSLocalizedDescriptionKey: "No hay sesión activa"])
         }
         
-        // Nota: Tu backend no valida la contraseña actual en el endpoint PUT /users
-        // Solo actualiza con la nueva contraseña
         try await profileClient.updatePassword(
             token: accessToken,
             currentPassword: currentPassword,

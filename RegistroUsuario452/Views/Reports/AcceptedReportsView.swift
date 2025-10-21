@@ -12,8 +12,6 @@ struct AcceptedReportsView: View {
     @State private var reports: [Report] = []
     @State private var isLoading = false
     @State private var errorMessage: String?
-    @State private var selectedReport: Report?
-    @State private var showingDetail = false
     
     // Filtros
     @State private var selectedCategory: Int? = nil
@@ -168,11 +166,10 @@ struct AcceptedReportsView: View {
                         ScrollView {
                             LazyVStack(spacing: 16) {
                                 ForEach(reports) { report in
-                                    ReportCard(report: report)
-                                        .onTapGesture {
-                                            selectedReport = report
-                                            showingDetail = true
-                                        }
+                                    NavigationLink(destination: ReportDetailView(report: report)) {
+                                        ReportCard(report: report)
+                                    }
+                                    .buttonStyle(PlainButtonStyle())
                                 }
                             }
                             .padding()
@@ -184,15 +181,11 @@ struct AcceptedReportsView: View {
                 }
             }
             .navigationTitle("Reportes")
-            .navigationBarTitleDisplayMode(.large)
+            .navigationBarTitleDisplayMode(.inline)
             .task {
                 await loadReports()
             }
-            .sheet(isPresented: $showingDetail) {
-                if let report = selectedReport {
-                    ReportDetailView(report: report)
-                }
-            }
+            .preferredColorScheme(.light)
         }
     }
     
@@ -226,7 +219,7 @@ struct ReportCard: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             // Tipo de fraude
-            Text(report.categoryName)
+            Text(report.displayCategoryName)
                 .font(.system(size: 18, weight: .semibold))
                 .foregroundColor(.black)
             

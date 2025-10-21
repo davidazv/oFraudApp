@@ -7,15 +7,20 @@ import Foundation
 
 struct Report: Codable, Identifiable {
     let id: Int
-    let userId: Int
+    let userId: Int?
+    let userName: String?
     let categoryId: Int
+    let categoryName: String?
     let statusId: Int
+    let statusName: String?
     let title: String
     let description: String
     let incidentDate: String
     let location: String?
+    let fraudContact: String?
     let evidenceUrl: String?
     let assignedAdminId: Int?
+    let assignedAdminName: String?
     let isAnonymous: Int
     let createdAt: String
     let updatedAt: String
@@ -23,29 +28,43 @@ struct Report: Codable, Identifiable {
     enum CodingKeys: String, CodingKey {
         case id
         case userId = "user_id"
+        case userName = "user_name"
         case categoryId = "category_id"
+        case categoryName = "category_name"
         case statusId = "status_id"
+        case statusName = "status_name"
         case title, description
         case incidentDate = "incident_date"
         case location
+        case fraudContact = "fraud_contact"
         case evidenceUrl = "evidence_url"
         case assignedAdminId = "assigned_admin_id"
+        case assignedAdminName = "assigned_admin_name"
         case isAnonymous = "is_anonymous"
         case createdAt = "created_at"
         case updatedAt = "updated_at"
     }
     
-    var categoryName: String {
-        CategoryType.allCases.first(where: { $0.id == categoryId })?.name ?? "Desconocido"
+    var displayCategoryName: String {
+        return categoryName ?? CategoryType.allCases.first(where: { $0.id == categoryId })?.name ?? "Desconocido"
     }
     
-    var statusName: String {
-        switch statusId {
-        case 1: return "Pendiente"
-        case 2: return "Aceptado"
-        case 3: return "Rechazado"
-        default: return "Desconocido"
+    var displayStatusName: String {
+        return statusName ?? {
+            switch statusId {
+            case 1: return "Pendiente"
+            case 2: return "Aceptado"
+            case 3: return "Rechazado"
+            default: return "Desconocido"
+            }
+        }()
+    }
+    
+    var displayUserName: String {
+        if isAnonymous == 1 {
+            return "Usuario Anónimo"
         }
+        return userName ?? "Usuario #\(userId ?? 0)"
     }
     
     var statusColor: String {
@@ -86,6 +105,7 @@ struct CreateReportRequest: Codable {
     let description: String
     let incidentDate: String
     let location: String?
+    let fraudContact: String?
     let evidenceUrl: String?
     let isAnonymous: Bool
     
@@ -94,6 +114,7 @@ struct CreateReportRequest: Codable {
         case title, description
         case incidentDate = "incident_date"
         case location
+        case fraudContact = "fraud_contact"
         case evidenceUrl = "evidence_url"
         case isAnonymous = "is_anonymous"
     }

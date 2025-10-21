@@ -31,7 +31,11 @@ struct ModernRegistrationScreen: View {
             )
             print("Usuario registrado: \(response)")
             isLoading = false
-            dismiss()
+            
+            // Regresar a la pantalla de login sin auto-login
+            await MainActor.run {
+                dismiss()
+            }
         } catch {
             errorMessages = ["Error al registrarte: \(error.localizedDescription)"]
             showingAlert = true
@@ -60,8 +64,8 @@ struct ModernRegistrationScreen: View {
         if contraseña.isEmpty {
             errors.append("La contraseña es requerida")
         } else {
-            if contraseña.count < 8 {
-                errors.append("La contraseña debe tener mínimo 8 caracteres")
+            if contraseña.count < 10 {
+                errors.append("La contraseña debe tener mínimo 10 caracteres")
             }
             if !containsUppercase(contraseña) {
                 errors.append("La contraseña debe tener al menos una letra mayúscula")
@@ -119,6 +123,7 @@ struct ModernRegistrationScreen: View {
                         TextField("Nombre", text: $nombre)
                             .autocapitalization(.words)
                             .disableAutocorrection(true)
+                            .foregroundColor(.black)
                             .padding()
                             .background(Color.gray.opacity(0.1))
                             .cornerRadius(12)
@@ -127,6 +132,7 @@ struct ModernRegistrationScreen: View {
                         TextField("Apellido", text: $apellido)
                             .autocapitalization(.words)
                             .disableAutocorrection(true)
+                            .foregroundColor(.black)
                             .padding()
                             .background(Color.gray.opacity(0.1))
                             .cornerRadius(12)
@@ -136,6 +142,7 @@ struct ModernRegistrationScreen: View {
                             .keyboardType(.emailAddress)
                             .autocapitalization(.none)
                             .disableAutocorrection(true)
+                            .foregroundColor(.black)
                             .padding()
                             .background(Color.gray.opacity(0.1))
                             .cornerRadius(12)
@@ -144,6 +151,8 @@ struct ModernRegistrationScreen: View {
                         SecureField("Contraseña", text: $contraseña)
                             .autocapitalization(.none)
                             .disableAutocorrection(true)
+                            .textContentType(.newPassword)
+                            .foregroundColor(.black)
                             .padding()
                             .background(Color.gray.opacity(0.1))
                             .cornerRadius(12)
@@ -152,6 +161,8 @@ struct ModernRegistrationScreen: View {
                         SecureField("Confirmar contraseña", text: $confirmarContraseña)
                             .autocapitalization(.none)
                             .disableAutocorrection(true)
+                            .textContentType(.newPassword)
+                            .foregroundColor(.black)
                             .padding()
                             .background(Color.gray.opacity(0.1))
                             .cornerRadius(12)
@@ -169,10 +180,10 @@ struct ModernRegistrationScreen: View {
                         
                         VStack(alignment: .leading, spacing: 6) {
                             HStack(spacing: 8) {
-                                Image(systemName: contraseña.count >= 8 ? "checkmark.circle.fill" : "xmark.circle.fill")
-                                    .foregroundColor(contraseña.count >= 8 ? .green : .red)
+                                Image(systemName: contraseña.count >= 10 ? "checkmark.circle.fill" : "xmark.circle.fill")
+                                    .foregroundColor(contraseña.count >= 10 ? .green : .red)
                                     .font(.system(size: 14))
-                                Text("Mínimo 8 caracteres")
+                                Text("Mínimo 10 caracteres")
                                     .font(.system(size: 14))
                                     .foregroundColor(.gray)
                             }
@@ -240,6 +251,7 @@ struct ModernRegistrationScreen: View {
                 }
             }
         }
+        .preferredColorScheme(.light)
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden(true)
         .toolbar {

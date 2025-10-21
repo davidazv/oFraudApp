@@ -55,6 +55,8 @@ struct ProfileMenuView: View {
                             }
                             .padding(.top, 30)
                             .padding(.bottom, 30)
+                            // ACTUALIZACIÓN: Agregamos un id para forzar la reconstrucción
+                            .id(profileEnv.profile.name + profileEnv.profile.email + "\(profileEnv.needsRefresh)")
                             
                             // Opciones del menú
                             VStack(spacing: 0) {
@@ -118,17 +120,16 @@ struct ProfileMenuView: View {
                 }
             }
             .navigationTitle("Perfil")
-            .navigationBarTitleDisplayMode(.large)
+            .navigationBarTitleDisplayMode(.inline)
             .task {
-                await loadProfile()
-            }
-            .onChange(of: profileEnv.needsRefresh) { oldValue, newValue in
-                if newValue {
-                    Task {
-                        await loadProfile()
-                        profileEnv.needsRefresh = false
-                    }
+                // Solo cargar si el perfil está vacío
+                if profileEnv.profile.name.isEmpty || profileEnv.profile.email.isEmpty {
+                    await loadProfile()
                 }
+            }
+            .onChange(of: profileEnv.needsRefresh) { _, _ in
+                // La vista se actualiza automáticamente por el cambio en @Observable
+                // No necesitamos hacer nada adicional aquí
             }
             .sheet(isPresented: $showUserProfile) {
                 UserProfileView()
@@ -145,6 +146,7 @@ struct ProfileMenuView: View {
             .sheet(isPresented: $showLogoutConfirmation) {
                 LogoutConfirmationView()
             }
+            .preferredColorScheme(.light)
         }
     }
     
@@ -164,6 +166,11 @@ struct ProfileMenuView: View {
     }
     
     private func getInitials(from name: String) -> String {
+        // Manejo especial para nombres vacíos
+        guard !name.isEmpty else {
+            return "U"
+        }
+        
         let components = name.split(separator: " ")
         if components.count >= 2 {
             let first = String(components[0].prefix(1))

@@ -5,33 +5,32 @@
 //  Created by José Molina on 22/08/25.
 //
 
+
 import SwiftUI
-
-//@main
-//struct RegistroUsuario452App: App {
-//    @AppStorage("isLoggedIn") private var isLoggedIn = false
-// var body: some Scene {
-//        WindowGroup {
-//            if isLoggedIn {
-//                HomeScreen()                     // tu pantalla principal
-//           } else {
-//                NavigationStack { LoginScreen() } // login con navegación a registro
-//            }
-//        }
-//    }
-//}
-
 
 @main
 struct RegistroUsuario452App: App {
     @AppStorage("isLoggedIn") private var isLoggedIn = false
+    @AppStorage("isGuestMode") private var isGuestMode = false
+    
+    // Crear instancia compartida del ProfileEnvironment
+    @State private var profileEnvironment = ProfileEnvironment.shared
+    
     var body: some Scene {
         WindowGroup {
-            if isLoggedIn {
-                HomeScreen()
-            } else {
-                ModernLoginScreen()  // Cambiado de LoginScreen a ModernLoginScreen
+            Group {
+                if isLoggedIn && !isGuestMode {
+                    // Usuario autenticado
+                    HomeScreen()
+                } else if isGuestMode {
+                    // Modo invitado
+                    GuestHomeScreen()
+                } else {
+                    // No autenticado
+                    ModernLoginScreen()
+                }
             }
+            .environment(\.profileEnvironment, profileEnvironment)
         }
     }
 }

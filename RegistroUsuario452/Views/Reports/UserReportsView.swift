@@ -12,8 +12,6 @@ struct UserReportsView: View {
     @State private var reports: [Report] = []
     @State private var isLoading = false
     @State private var errorMessage: String?
-    @State private var selectedReport: Report?
-    @State private var showingDetail = false
     
     // Filtros
     @State private var selectedStatus: Int? = nil
@@ -70,6 +68,7 @@ struct UserReportsView: View {
                             VStack(alignment: .leading, spacing: 8) {
                                 Text("Estado")
                                     .font(.system(size: 14, weight: .medium))
+                                    .padding(.leading, 8)
                                 
                                 HStack(spacing: 12) {
                                     FilterChip(title: "Todos", isSelected: selectedStatus == nil) {
@@ -91,6 +90,7 @@ struct UserReportsView: View {
                             VStack(alignment: .leading, spacing: 8) {
                                 Text("Tipo de Fraude")
                                     .font(.system(size: 14, weight: .medium))
+                                    .padding(.leading, 8)
                                 
                                 Picker("Categoría", selection: $selectedCategory) {
                                     Text("Todos").tag(nil as Int?)
@@ -193,11 +193,10 @@ struct UserReportsView: View {
                         ScrollView {
                             LazyVStack(spacing: 16) {
                                 ForEach(reports) { report in
-                                    UserReportCard(report: report)
-                                        .onTapGesture {
-                                            selectedReport = report
-                                            showingDetail = true
-                                        }
+                                    NavigationLink(destination: ReportDetailView(report: report)) {
+                                        UserReportCard(report: report)
+                                    }
+                                    .buttonStyle(PlainButtonStyle())
                                 }
                             }
                             .padding()
@@ -209,14 +208,9 @@ struct UserReportsView: View {
                 }
             }
             .navigationTitle("Mis Reportes")
-            .navigationBarTitleDisplayMode(.large)
+            .navigationBarTitleDisplayMode(.inline)
             .task {
                 await loadReports()
-            }
-            .sheet(isPresented: $showingDetail) {
-                if let report = selectedReport {
-                    ReportDetailView(report: report)
-                }
             }
         }
     }
@@ -267,9 +261,10 @@ struct UserReportCard: View {
         VStack(alignment: .leading, spacing: 12) {
             // Header con tipo y estado
             HStack {
-                Text(report.categoryName)
+                Text(report.displayCategoryName)
                     .font(.system(size: 16, weight: .semibold))
                     .foregroundColor(.black)
+                    .padding(.leading, 4)
                 
                 Spacer()
                 
@@ -277,7 +272,7 @@ struct UserReportCard: View {
                     Circle()
                         .fill(statusColor)
                         .frame(width: 8, height: 8)
-                    Text(report.statusName)
+                    Text(report.displayStatusName)
                         .font(.system(size: 12, weight: .medium))
                         .foregroundColor(statusColor)
                 }
@@ -292,12 +287,14 @@ struct UserReportCard: View {
                 .font(.system(size: 15, weight: .medium))
                 .foregroundColor(.gray)
                 .lineLimit(2)
+                .padding(.leading, 4)
             
             // Descripción truncada
             Text(report.description)
                 .font(.system(size: 14))
                 .foregroundColor(.gray)
                 .lineLimit(2)
+                .padding(.leading, 4)
             
             // Footer con fecha
             HStack {
