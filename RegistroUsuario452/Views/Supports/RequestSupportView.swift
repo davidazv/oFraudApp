@@ -332,7 +332,7 @@ struct RequestSupportView: View {
                 "priority": priorityValue
             ]
             
-            let url = URL(string: "http://192.168.0.100:3000/help-requests")!
+            let url = URL(string: "http://10.48.246.68:3000/help-requests")!
             var httpRequest = URLRequest(url: url)
             httpRequest.httpMethod = "POST"
             httpRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")

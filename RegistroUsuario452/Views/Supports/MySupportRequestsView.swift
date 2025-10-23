@@ -113,7 +113,7 @@ struct MySupportRequestsView: View {
         }
         
         do {
-            let url = URL(string: "http://192.168.0.100:3000/help-requests/my-requests")!
+            let url = URL(string: "http://10.48.246.68:3000/help-requests/my-requests")!
             var request = URLRequest(url: url)
             request.httpMethod = "GET"
             request.addValue("Bearer \(token)", forHTTPHeaderField: "Authorization")

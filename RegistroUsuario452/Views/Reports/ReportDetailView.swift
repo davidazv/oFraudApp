@@ -119,7 +119,7 @@ struct ReportDetailView: View {
                     Divider()
                     
                     // Evidencia
-                    if let evidenceUrl = report.evidenceUrl?.replacingOccurrences(of: "localhost", with: "192.168.0.100"), !evidenceUrl.isEmpty {
+                    if let evidenceUrl = report.evidenceUrl?.replacingOccurrences(of: "localhost", with: "10.48.246.68"), !evidenceUrl.isEmpty {
                         VStack(alignment: .leading, spacing: 8) {
                             Label("Evidencia", systemImage: "photo")
                                 .font(.system(size: 14, weight: .medium))

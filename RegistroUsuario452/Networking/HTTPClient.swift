@@ -9,7 +9,7 @@ struct HTTPClient {
             "password": password
         ]
         
-        let url = URL(string: "http://192.168.0.100:3000/users")!
+        let url = URL(string: "http://10.48.246.68:3000/users")!
         var httpRequest = URLRequest(url: url)
         httpRequest.httpMethod = "POST"
         httpRequest.addValue("application/json", forHTTPHeaderField: "Content-Type")
@@ -58,8 +58,8 @@ struct HTTPClient {
     
     func UserLogin(email: String, password: String) async throws -> LoginResponse {
         let loginRequest = LoginRequest(email: email, password: password)
-        guard let url = URL(string: "http://192.168.0.100:3000/auth/login") else {
-            fatalError("Invalid URL" + "http://192.168.0.100:3000/auth/login")
+        guard let url = URL(string: "http://10.48.246.68:3000/auth/login") else {
+            fatalError("Invalid URL" + "http://10.48.246.68:3000/auth/login")
         }
         var urlRequest = URLRequest(url: url)
         urlRequest.httpMethod = "POST"
@@ -77,31 +77,6 @@ struct HTTPClient {
         return loginResponse
     }
     
-    func appleLogin(request: AppleLoginRequest) async throws -> LoginResponse {
-        guard let url = URL(string: "http://192.168.0.100:3000/auth/apple/login") else {
-            fatalError("Invalid URL for Apple login")
-        }
-        
-        var urlRequest = URLRequest(url: url)
-        urlRequest.httpMethod = "POST"
-        urlRequest.addValue("application/json", forHTTPHeaderField: "Content-Type")
-        urlRequest.httpBody = try? JSONEncoder().encode(request)
-        
-        let (data, response) = try await URLSession.shared.data(for: urlRequest)
-        
-        // Imprimir la respuesta para debug
-        if let responseString = String(data: data, encoding: .utf8) {
-            print("📥 Respuesta del Apple login: \(responseString)")
-        }
-        
-        if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode != 200 && httpResponse.statusCode != 201 {
-            throw NSError(domain: "", code: httpResponse.statusCode,
-                        userInfo: [NSLocalizedDescriptionKey: "Error en login con Apple. Código: \(httpResponse.statusCode)"])
-        }
-        
-        let loginResponse = try JSONDecoder().decode(LoginResponse.self, from: data)
-        return loginResponse
-    }
     
     func sendRequest(url: URL,
                      method: String,

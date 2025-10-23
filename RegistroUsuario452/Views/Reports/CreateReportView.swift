@@ -586,7 +586,7 @@ struct CreateReportView: View {
         
         // Usar endpoint correcto según si es usuario registrado o invitado
         let endpoint = isGuestMode ? "/reports/guest" : "/reports"
-        let url = URL(string: "http://192.168.0.100:3000\(endpoint)")!
+        let url = URL(string: "http://10.48.246.68:3000\(endpoint)")!
         var httpRequest = URLRequest(url: url)
         httpRequest.httpMethod = "POST"
         httpRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
@@ -654,7 +654,7 @@ struct CreateReportView: View {
         
         // Usar endpoint correcto según si es usuario registrado o invitado
         let endpoint = isGuestMode ? "/reports/guest" : "/reports"
-        let url = URL(string: "http://192.168.0.100:3000\(endpoint)")!
+        let url = URL(string: "http://10.48.246.68:3000\(endpoint)")!
         var httpRequest = URLRequest(url: url)
         httpRequest.httpMethod = "POST"
         

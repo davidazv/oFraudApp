@@ -7,7 +7,7 @@ import Foundation
 import UIKit
 
 class ReportClient {
-    private let baseURL = "http://192.168.0.100:3000"
+    private let baseURL = "http://10.48.246.68:3000"
     
     // Reportes públicos aceptados con filtros opcionales
     func getAcceptedReports(categoryId: Int? = nil, dateFrom: String? = nil, dateTo: String? = nil) async throws -> [Report] {
